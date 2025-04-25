@@ -110,11 +110,24 @@ def load_data():
 st.set_page_config(page_title="탄합선재_탄합봉강 분석", layout="wide")
 st.title("탄합선재·탄합봉강 입고 분석 결과")
 
-# 데이터 로드 및 처리
+# 데이터 로드
 with st.spinner("데이터 로드 중..."):
     df = load_data()
 
+# 사이드바: KEY 선택 위젯
+all_keys = df['KEY'].unique().tolist()
+selected_keys = st.sidebar.multiselect(
+    label="🔑 필터할 KEY 선택",
+    options=all_keys,
+    default=all_keys[:3]   # 기본으로 상위 3개를 보여주고 싶다면, 아니면 all_keys 로 전체 선택
+)
+
+# 선택된 KEY 로 필터링
+if selected_keys:
+    df = df[df['KEY'].isin(selected_keys)]
+else:
+    st.sidebar.warning("하나 이상의 KEY를 선택해주세요.")
+
 # 테이블 화면 출력
 st.markdown("### 분석 결과 테이블 (박스플롯 이미지 포함)")
-# HTML 테이블을 사용해 이미지가 보이도록 렌더링
 st.write(df.to_html(escape=False, index=False), unsafe_allow_html=True)
