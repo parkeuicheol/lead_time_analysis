@@ -8,6 +8,7 @@ plt.rcParams['font.family'] = 'Malgun Gothic'
 import matplotlib as mpl
 mpl.rcParams['axes.unicode_minus'] = False
 import io, base64, os
+import xlsxwriter
 
 # ------------------------------------------------------------------
 # 엑셀 생성: 이미지 포함해서 Bytes 반환
