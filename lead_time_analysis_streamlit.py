@@ -144,7 +144,7 @@ def load_data():
             for k,g in df.groupby('KEY')['제조공기(입고일-생산의뢰년월일)']]
     img_df = pd.DataFrame(imgs)
     final_df = merged.merge(img_df, on='KEY')# 통계치, 중량가중평균/표준편차, IQR확장평균 계산 (생략)
-
+    
     return final_df  # merged + img_df 가 합쳐진 최종 DataFrame
 
 # ------------------------------------------------------------------
