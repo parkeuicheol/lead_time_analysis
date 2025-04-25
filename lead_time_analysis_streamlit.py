@@ -9,7 +9,7 @@ import matplotlib as mpl
 mpl.rcParams['axes.unicode_minus'] = False
 import io, base64, os
 import xlsxwriter
-# from IPython.display import HTML
+from IPython.display import HTML
 import shutil
 from pyexcelerate import Workbook
 
