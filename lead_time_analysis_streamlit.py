@@ -15,7 +15,7 @@ import base64
 def load_data():
     # 1) 데이터 로드
     df = pd.read_parquet('first_item.parquet')
-    master_table = pd.read_excel('master_table.parquet')
+    master_table = pd.read_parquet('master_table.parquet')
 
     # # 2) 필터링: 탄합선재 + 탄합봉강
     # cond_A = results_df['대강종명'] == '탄합강'
