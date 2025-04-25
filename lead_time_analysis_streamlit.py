@@ -44,7 +44,7 @@ def to_excel_with_images(df):
                         "image_data": img_buf,
                         "x_scale": 0.5,
                         "y_scale": 0.5,
-                        "object_position": 1
+                        "object_position": 2 # 셀 변경에 따라 그림도 이동하고 크기가 함께 변경
                     }
                 )
     output.seek(0)
