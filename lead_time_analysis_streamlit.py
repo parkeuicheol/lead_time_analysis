@@ -90,6 +90,7 @@ def load_data():
         return '탄합봉강_QT' if r['열처리']=='QT' else '탄합봉강_열처리'
     df['제품구분'] = df.apply(classify2, axis=1)
 
+    # KEY 컬럼 생성
     df['KEY'] = (
         df['제품구분'].str.strip() + '_'
         + df['품종'].str.strip() + '_'
@@ -97,8 +98,52 @@ def load_data():
         + df['표면'].str.strip()
     )
 
-    # 통계치, 중량가중평균/표준편차, IQR확장평균 계산 (생략)
-    # ... (기존 load_data 본문 그대로 복사) ...
+    # 통계치 그룹핑
+    agg_funcs = {
+        'LOT_NO': pd.Series.nunique,
+        '입고중량': 'sum',
+        '제조공기(입고일-생산의뢰년월일)': ['median', 'mean', lambda x: x.quantile(0.25), lambda x: x.quantile(0.75)]
+    }
+    stats = df.groupby('KEY').agg(agg_funcs)
+    stats.columns = ['KEY별 LOT 갯수','KEY 총 중량','제조공기_중앙값','제조공기_단순평균','제조공기_1분위수','제조공기_3분위수']
+    stats = stats.reset_index()
+
+    # 중량가중평균/표준편차 계산
+    df = df.merge(stats[['KEY','KEY 총 중량']], on='KEY', how='left')
+    df['가중계수'] = df['입고중량']/df['KEY 총 중량']
+    df['제조공기*가중'] = df['제조공기(입고일-생산의뢰년월일)']*df['가중계수']
+    wmean = df.groupby('KEY')['제조공기*가중'].sum().reset_index(name='KEY별 중량가중평균')
+    df = df.merge(wmean, on='KEY', how='left')
+    df['편차제곱*중량'] = df['입고중량']*((df['제조공기(입고일-생산의뢰년월일)']-df['KEY별 중량가중평균'])**2)
+    var = df.groupby('KEY')['편차제곱*중량'].sum().reset_index(name='분산합')
+    var = var.merge(df.groupby('KEY')['입고중량'].sum().reset_index(name='총중량'), on='KEY')
+    var['중량가중_표준편차'] = np.sqrt(var['분산합']/var['총중량'])
+
+    # IQR 확장 평균
+    def avg_iqr(s):
+        q1, q3 = s.quantile(0.25), s.quantile(0.75)
+        iqr = q3-q1
+        return s[(s>=q1-1.5*iqr)&(s<=q3+1.5*iqr)].mean()
+    ext_iqr = df.groupby('KEY')['제조공기(입고일-생산의뢰년월일)'].apply(avg_iqr).reset_index(name='IQR확장평균')
+
+    # merge all
+    merged = stats.merge(wmean, on='KEY')
+    merged = merged.merge(var[['KEY','중량가중_표준편차']], on='KEY')
+    merged = merged.merge(ext_iqr, on='KEY')
+
+    # boxplot 이미지 생성 (이상치 포함/숨김)
+    def make_img(series, show_outliers=True):
+        buf=io.BytesIO(); fig,ax=plt.subplots(figsize=(6,2));
+        ax.boxplot(series, vert=False, showfliers=show_outliers)
+        ax.axis('off'); fig.savefig(buf,format='png',bbox_inches='tight'); plt.close(fig);buf.seek(0)
+        return base64.b64encode(buf.getvalue()).decode()
+
+    imgs = [{'KEY':k,
+             '박스(원본)':f'<img src="data:image/png;base64,{make_img(g)}"/>' ,
+             '박스(숨김)':f'<img src="data:image/png;base64,{make_img(g,False)}"/>'}
+            for k,g in df.groupby('KEY')['제조공기(입고일-생산의뢰년월일)']]
+    img_df = pd.DataFrame(imgs)
+    final_df = merged.merge(img_df, on='KEY')# 통계치, 중량가중평균/표준편차, IQR확장평균 계산 (생략)
 
     return final_df  # merged + img_df 가 합쳐진 최종 DataFrame
 
