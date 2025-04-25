@@ -5,4 +5,3 @@ matplotlib
 pyarrow
 openpyxl
 xlsxwriter
-HTML
