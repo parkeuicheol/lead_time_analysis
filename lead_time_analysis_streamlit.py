@@ -23,7 +23,7 @@ def to_excel_with_images(df):
         workbook  = writer.book
         worksheet = writer.sheets["Sheet1"]
         
-        img_cols = ["박스(원본)", "박스(숨김)"]
+        img_cols = ["BOX PLOT(원본)", "BOX PLOT(이상치 숨김)"]
         for col_name in img_cols:
             if col_name not in df.columns:
                 continue
