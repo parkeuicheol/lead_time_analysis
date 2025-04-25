@@ -11,6 +11,46 @@ import os, io, base64
 
 # 캐싱된 데이터 로드 및 처리 함수
 @st.cache_data
+
+def to_excel_with_images(df):
+    output = io.BytesIO()
+    # (1) Pandas + XlsxWriter 로 엑셀버퍼 생성
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        df.to_excel(writer, sheet_name="Sheet1", index=False)
+        workbook  = writer.book
+        worksheet = writer.sheets["Sheet1"]
+
+        # (2) 삽입할 이미지 컬럼 이름
+        img_cols = ["박스(원본)", "박스(숨김)"]
+        for col_name in img_cols:
+            if col_name not in df.columns:
+                continue
+            col_idx = df.columns.get_loc(col_name)
+            for row_i, html in enumerate(df[col_name]):
+                if pd.isna(html):
+                    continue
+                # html 태그에서 base64 문자열만 뽑아내기
+                try:
+                    b64 = html.split("base64,")[1].split('"')[0]
+                except:
+                    continue
+                img_data = base64.b64decode(b64)
+                img_buf  = io.BytesIO(img_data)
+                # (3) 빈 파일명 대신 image_data 옵션으로 바로 삽입
+                worksheet.insert_image(
+                    row_i+1, col_idx,   # +1 은 헤더 한 줄 때문에
+                    "",                  # filename 대신 빈 문자열
+                    {
+                        "image_data": img_buf,
+                        "x_scale": 0.5,
+                        "y_scale": 0.5,
+                        "object_position": 1
+                    }
+                )
+    output.seek(0)
+    return output.read()
+
+
 def load_data():
     # 1) 데이터 로드
     df = pd.read_parquet('first_item.parquet')
@@ -135,49 +175,6 @@ st.write(df.to_html(escape=False, index=False), unsafe_allow_html=True)
 
 
 
-
-
-
-
-
-
-def to_excel_with_images(df):
-    output = io.BytesIO()
-    # (1) Pandas + XlsxWriter 로 엑셀버퍼 생성
-    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        df.to_excel(writer, sheet_name="Sheet1", index=False)
-        workbook  = writer.book
-        worksheet = writer.sheets["Sheet1"]
-
-        # (2) 삽입할 이미지 컬럼 이름
-        img_cols = ["박스(원본)", "박스(숨김)"]
-        for col_name in img_cols:
-            if col_name not in df.columns:
-                continue
-            col_idx = df.columns.get_loc(col_name)
-            for row_i, html in enumerate(df[col_name]):
-                if pd.isna(html):
-                    continue
-                # html 태그에서 base64 문자열만 뽑아내기
-                try:
-                    b64 = html.split("base64,")[1].split('"')[0]
-                except:
-                    continue
-                img_data = base64.b64decode(b64)
-                img_buf  = io.BytesIO(img_data)
-                # (3) 빈 파일명 대신 image_data 옵션으로 바로 삽입
-                worksheet.insert_image(
-                    row_i+1, col_idx,   # +1 은 헤더 한 줄 때문에
-                    "",                  # filename 대신 빈 문자열
-                    {
-                        "image_data": img_buf,
-                        "x_scale": 0.5,
-                        "y_scale": 0.5,
-                        "object_position": 1
-                    }
-                )
-    output.seek(0)
-    return output.read()
 
 # Streamlit 앱 하단에 추가
 # ---------------------
