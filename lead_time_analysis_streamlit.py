@@ -139,13 +139,13 @@ def load_data():
         return base64.b64encode(buf.getvalue()).decode()
 
     imgs = [{'KEY':k,
-             '박스(원본)':f'<img src="data:image/png;base64,{make_img(g)}"/>' ,
-             '박스(숨김)':f'<img src="data:image/png;base64,{make_img(g,False)}"/>'}
+             'BOX PLOT(원본)':f'<img src="data:image/png;base64,{make_img(g)}"/>' ,
+             'BOX PLOT(이상치 숨김)':f'<img src="data:image/png;base64,{make_img(g,False)}"/>'}
             for k,g in df.groupby('KEY')['제조공기(입고일-생산의뢰년월일)']]
     img_df = pd.DataFrame(imgs)
-    final_df = merged.merge(img_df, on='KEY')# 통계치, 중량가중평균/표준편차, IQR확장평균 계산 (생략)
+    final_df = merged.merge(img_df, on='KEY')
     
-    return final_df  # merged + img_df 가 합쳐진 최종 DataFrame
+    return final_df
 
 # ------------------------------------------------------------------
 # Streamlit UI
