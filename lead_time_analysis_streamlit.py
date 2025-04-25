@@ -14,17 +14,17 @@ import base64
 @st.cache_data
 def load_data():
     # 1) 데이터 로드
-    results_df = pd.read_parquet('250402_results_df.parquet')
-    master_table = pd.read_excel('1.탄합선재_탄합봉강_MASTER_TABLE.xlsx')
+    df = pd.read_parquet('first_item.parquet')
+    master_table = pd.read_excel('master_table.parquet')
 
-    # 2) 필터링: 탄합선재 + 탄합봉강
-    cond_A = results_df['대강종명'] == '탄합강'
-    cond_B = results_df['주문형상'].isin(['WR','RB','FB','SB','HB'])
-    df = results_df[cond_A & cond_B]
+    # # 2) 필터링: 탄합선재 + 탄합봉강
+    # cond_A = results_df['대강종명'] == '탄합강'
+    # cond_B = results_df['주문형상'].isin(['WR','RB','FB','SB','HB'])
+    # df = results_df[cond_A & cond_B]
 
-    # MARAGING 포함 행 추가
-    df = pd.concat([df, results_df[results_df['사내강종명'].str.contains('MARAGING')]], ignore_index=True)
-    df = df[~df['수요가명'].str.contains('강관영업팀')].reset_index(drop=True)
+    # # MARAGING 포함 행 추가
+    # df = pd.concat([df, results_df[results_df['사내강종명'].str.contains('MARAGING')]], ignore_index=True)
+    # df = df[~df['수요가명'].str.contains('강관영업팀')].reset_index(drop=True)
 
     # 그룹별 최댓값 행 추출
     df_max = df.loc[df.groupby('LOT_NO')['공정순위'].idxmax(), ['LOT_NO','공정순위']]
