@@ -147,7 +147,7 @@ def load_data():
             for k,g in df.groupby('KEY')['제조공기(입고일-생산의뢰년월일)']]
     img_df = pd.DataFrame(imgs)
     final_df = merged.merge(img_df, on='KEY')
-    
+    final_df = final_df.sort_values(by='KEY별 LOT 갯수', ascending=False).reset_index(drop=True)
     return final_df
 
 # ------------------------------------------------------------------
