@@ -5,6 +5,5 @@ matplotlib
 pyarrow
 openpyxl
 xlsxwriter
-os
 io
 base64
