@@ -11,6 +11,7 @@ import io
 import base64
 
 # 캐싱된 데이터 로드 및 처리 함수
+@st.cache_data
 def load_data():
     # 1) 데이터 로드
     results_df = pd.read_parquet('250402_results_df.parquet')
@@ -110,7 +111,8 @@ st.set_page_config(page_title="탄합선재_탄합봉강 분석", layout="wide")
 st.title("탄합선재·탄합봉강 입고 분석 결과")
 
 # 데이터 로드 및 처리
-df = load_data()
+with st.spinner("데이터 로드 중..."):
+    df = load_data()
 
 # 테이블 화면 출력
 st.markdown("### 분석 결과 테이블 (박스플롯 이미지 포함)")
