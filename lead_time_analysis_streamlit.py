@@ -178,8 +178,8 @@ def load_data_tan():
         fig,ax=plt.subplots(figsize=(8,4))
 
         # boxplot 그리기
-        ax.set_xlabel("제조공기(입고일-생산의뢰년월일) [일]")
-        ax.set_yticks([])  # Y축은 그룹별 KEY가 따로 없으니 눈금만 제거
+        # ax.set_xlabel("제조공기(입고일-생산의뢰년월일) [일]")
+        # ax.set_yticks([])  # Y축은 그룹별 KEY가 따로 없으니 눈금만 제거
         # 필요하다면 ax.set_ylabel(" ") 또는 ax.set_ylabel("KEY")도 사용 가능
 
         # 레이아웃 조정 후 저장
