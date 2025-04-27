@@ -320,7 +320,7 @@ def load_data_sts():
     def make_img(series, show_outliers=True):
         buf=io.BytesIO(); fig,ax=plt.subplots(figsize=(6,2));
         ax.boxplot(series, vert=False, showfliers=show_outliers)
-        ax.axis('off'); fig.savefig(buf,format='png',bbox_inches='tight'); plt.close(fig);buf.seek(0)
+        ax.axis('on'); fig.savefig(buf,format='png',bbox_inches='tight'); plt.close(fig);buf.seek(0)
         return base64.b64encode(buf.getvalue()).decode()
     imgs = [{'KEY':k,
              'BOX PLOT(원본)':f'<img src="data:image/png;base64,{make_img(g)}"/>',
@@ -484,7 +484,7 @@ def load_data_sts_wr():
     def make_img(series, show_outliers=True):
         buf=io.BytesIO(); fig,ax=plt.subplots(figsize=(6,2));
         ax.boxplot(series, vert=False, showfliers=show_outliers)
-        ax.axis('off'); fig.savefig(buf,format='png',bbox_inches='tight'); plt.close(fig);buf.seek(0)
+        ax.axis('on'); fig.savefig(buf,format='png',bbox_inches='tight'); plt.close(fig);buf.seek(0)
         return base64.b64encode(buf.getvalue()).decode()
     imgs = [{'KEY':k,
              'BOX PLOT(원본)':f'<img src="data:image/png;base64,{make_img(g)}"/>',
@@ -643,7 +643,7 @@ def load_data_tool():
     def make_img(series, show_outliers=True):
         buf=io.BytesIO(); fig,ax=plt.subplots(figsize=(6,2));
         ax.boxplot(series, vert=False, showfliers=show_outliers)
-        ax.axis('off'); fig.savefig(buf,format='png',bbox_inches='tight'); plt.close(fig);buf.seek(0)
+        ax.axis('on'); fig.savefig(buf,format='png',bbox_inches='tight'); plt.close(fig);buf.seek(0)
         return base64.b64encode(buf.getvalue()).decode()
     imgs = [{'KEY':k,
              'BOX PLOT(원본)':f'<img src="data:image/png;base64,{make_img(g)}"/>',
