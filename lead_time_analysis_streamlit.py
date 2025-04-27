@@ -174,7 +174,7 @@ def load_data_tan():
     
     # 9) boxplot 이미지 생성
     def make_img(series, show_outliers=True):
-        buf=io.BytesIO(); fig,ax=plt.subplots(figsize=(6,2));
+        buf=io.BytesIO(); fig,ax=plt.subplots(figsize=(8,4));
         ax.boxplot(series, vert=False, showfliers=show_outliers)
         ax.axis('off'); fig.savefig(buf,format='png',bbox_inches='tight'); plt.close(fig);buf.seek(0)
         return base64.b64encode(buf.getvalue()).decode()
