@@ -174,9 +174,19 @@ def load_data_tan():
     
     # 9) boxplot 이미지 생성
     def make_img(series, show_outliers=True):
-        buf=io.BytesIO(); fig,ax=plt.subplots(figsize=(8,4));
-        ax.boxplot(series, vert=False, showfliers=show_outliers)
-        ax.axis('off'); fig.savefig(buf,format='png',bbox_inches='tight'); plt.close(fig);buf.seek(0)
+        buf=io.BytesIO()
+        fig,ax=plt.subplots(figsize=(8,4))
+
+        # boxplot 그리기
+        ax.set_xlabel("제조공기(입고일-생산의뢰년월일) [일]")
+        ax.set_yticks([])  # Y축은 그룹별 KEY가 따로 없으니 눈금만 제거
+        # 필요하다면 ax.set_ylabel(" ") 또는 ax.set_ylabel("KEY")도 사용 가능
+
+        # 레이아웃 조정 후 저장
+        fig.tight_layout()
+        fig.savefig(buf, format="png", bbox_inches="tight")
+        plt.close(fig)
+        buf.seek(0)
         return base64.b64encode(buf.getvalue()).decode()
     imgs = [{'KEY':k,
              'BOX PLOT(원본)':f'<img src="data:image/png;base64,{make_img(g)}"/>',
