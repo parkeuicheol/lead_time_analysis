@@ -4,7 +4,7 @@ import numpy as np
 from functools import reduce
 import seaborn as sns
 import matplotlib.pyplot as plt
-plt.rcParams['font.family'] = 'NanumGothic'
+plt.rcParams['font.family'] = 'Malgun Gothic'
 import matplotlib as mpl
 mpl.rcParams['axes.unicode_minus'] = False
 import io, base64, os
@@ -17,6 +17,7 @@ import datetime
 # ------------------------------------------------------------------
 # 엑셀 생성: 이미지 포함해서 Bytes 반환
 # ------------------------------------------------------------------
+@st.cache_data
 def to_excel_with_images(df):
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
@@ -1226,13 +1227,27 @@ def load_raw_tool():
     return 공구_금형강_입고
 
 # ------------------------------------------------------------------
+# 원본데이터를 엑셀로 변환하는 함수 (캐싱 적용)
+# ------------------------------------------------------------------
+@st.cache_data(show_spinner=False)
+def to_excel_raw(df_raw: pd.DataFrame) -> bytes:
+    """
+    DataFrame -> Excel bytes 변환을 캐시합니다.
+    """
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        df_raw.to_excel(writer, sheet_name="RawData", index=False)
+    output.seek(0)
+    return output.read()
+
+# ------------------------------------------------------------------
 # Streamlit UI
 # ------------------------------------------------------------------
 st.set_page_config(page_title="입고 분석 앱", layout="wide")
 
 # 1) 앱 헤더 이미지
 # header.png 파일을 프로젝트 루트에 두고, 컬럼 전체 너비로 표시
-st.image("history_kv.png", use_container_width=True)
+st.image("history_kv.png", use_column_width=True)
 
 st.title("제조공기 분석 결과 테이블")
 st.subheader("2024년 ~ 2025년 1분기 내수/수출/강관원재 입고실적")
