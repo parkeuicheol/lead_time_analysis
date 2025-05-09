@@ -1232,7 +1232,7 @@ st.set_page_config(page_title="입고 분석 앱", layout="wide")
 
 # 1) 앱 헤더 이미지
 # header.png 파일을 프로젝트 루트에 두고, 컬럼 전체 너비로 표시
-st.image("history_kv.png", use_column_width=True)
+st.image("history_kv.png", use_container_width=True)
 
 st.title("제조공기 분석 결과 테이블")
 st.subheader("2024년 ~ 2025년 1분기 내수/수출/강관원재 입고실적")
