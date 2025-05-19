@@ -53,9 +53,9 @@ def to_excel_with_images(df):
 @st.cache_data
 def load_data_tan():
     '''
-    1) 탄합선재 + 탄합봉강
+    1) 탄합선재 + 탄합봉강 + MARAGING강
     - 강종대분류: A,B,C,K,M (대강종명 == '탄합강')
-    - 형상(주문형상) : WR, RB, FB, SB, HB 
+    - 형상(주문형상) : WR, RB, FB, SB, HB
     '''
     # 0) raw_data parquet file import
     탄합선재_탄합봉강 = pd.read_parquet('1.탄합선재_탄합봉강.parquet')
