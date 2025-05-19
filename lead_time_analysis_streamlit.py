@@ -1663,7 +1663,7 @@ with st.spinner("데이터 로드 중..."):
         df = load_data_tan()
         raw_df = load_raw_tan()
         subtitle = '''
-        1) 탄합선재 + 탄합봉강
+        1) 탄합선재 + 탄합봉강 + MARAGING강
         - 강종대분류: A,B,C,K,M (대강종명 == '탄합강')
         - 형상(주문형상) : WR, RB, FB, SB, HB
         '''
@@ -1671,7 +1671,7 @@ with st.spinner("데이터 로드 중..."):
         df = load_data_sts()
         raw_df = load_raw_sts()
         subtitle = '''
-        2) STS봉강 + 특수합금
+        2) STS봉강 + 특수합금 (MARAGING강 제외)
         - 강종대분류: S, V
         - 형상: RB, FB, SB, HB
         '''
@@ -1679,7 +1679,7 @@ with st.spinner("데이터 로드 중..."):
         df = load_data_sts_wr()
         raw_df = load_raw_sts_wr()
         subtitle = '''
-        3) STS선재 
+        3) STS/특수합금 선재 
         - 강종대분류 : S,V
         - 형상: WR
         '''
@@ -1687,7 +1687,7 @@ with st.spinner("데이터 로드 중..."):
         df = load_data_tool()
         raw_df = load_raw_tool()
         subtitle = '''
-        4) 공구강/금형강
+        4) 공구강/금형강 + Forged Block(GEN 5.x)
         - 강종대분류: T
         - 형상 : ALL
         '''
@@ -1695,8 +1695,7 @@ with st.spinner("데이터 로드 중..."):
         df = load_data_std11_61()
         raw_df = load_raw_std11_61()
         subtitle = '''
-        5) 공구강/금형강
-        - STD11_61종_대형재_BS품
+        5) 공구강/금형강 : STD11_61종_대형재_BS품
         '''
 
 # 3) 선택된 데이터셋에 따른 마크다운 출력
