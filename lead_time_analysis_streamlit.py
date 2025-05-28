@@ -208,6 +208,12 @@ def load_data_sts():
     # 0) raw_data parquet file import
     STS봉강_특수합금 = pd.read_parquet('2.STS봉강_특수합금.parquet')
     
+    # 0-1) '주문구분'이 '강관원재'가 아닌 행만 추출
+    STS봉강_특수합금 = STS봉강_특수합금[STS봉강_특수합금['주문구분'] != '강관원재']
+    
+    # 0-2) '열처리' 컬럼의 결측값을 'NH'로 채움
+    STS봉강_특수합금['열처리'] = STS봉강_특수합금['열처리'].fillna('NH')
+    
     # 1) 그룹별(공정순위가 최대인 행)의 인덱스를 구한 뒤, 해당 행만 추출
     df_max = STS봉강_특수합금.loc[STS봉강_특수합금.groupby('LOT_NO')['공정순위'].idxmax(), ['LOT_NO','공정순위']]
     
@@ -291,15 +297,51 @@ def load_data_sts():
         return f"{dt.year % 100:02d}년 {quarter}분기"
 
     # 파생컬럼 값에 대해 함수 적용하여 Y 컬럼 생성
-    STS봉강_특수합금_입고["기간구분"] = STS봉강_특수합금_입고["입고년월"].apply(determine_quarter)   
+    STS봉강_특수합금_입고["기간구분"] = STS봉강_특수합금_입고["입고년월"].apply(determine_quarter)
     
-    # 8) 파생변수 생성 : 각 컬럼 데이터의 공백을 제거하고, 문자열로 변환하여 KEY 생성
+    # 8) 파생변수 생성 (압연구분)
+    # 컬럼명 지정
+    ps_col = '제품소성공정명'
+    p_col  = '품종'
+    o_col  = '주문형상'
+
+    # 각 조건 정의
+    cond1 = (
+        STS봉강_특수합금_입고[ps_col].isin(['1단조 1800톤 프레스', 'RFM단조']) &
+        (STS봉강_특수합금_입고[p_col] == '일반단조')
+    )
+    cond2 = (
+        STS봉강_특수합금_입고[ps_col].isin(['1단조 1800톤 프레스', 'RFM단조']) &
+        (STS봉강_특수합금_입고[p_col] == '대형재') &
+        (STS봉강_특수합금_입고[o_col] == 'RB')
+    )
+    cond_1danjo   = cond1 | cond2
+
+    cond_2danjo   = (
+        (STS봉강_특수합금_입고[ps_col] == '2단조_9000톤_프레스') &
+        (STS봉강_특수합금_입고[p_col] == '일반단조')
+    )
+
+    cond_daehyeong = STS봉강_특수합금_입고[ps_col].isin(['분괴압연', '분괴_SBM압연'])
+    cond_sohyeong  = STS봉강_특수합금_입고[ps_col] == '소형압연'
+
+    # np.select 로 파생컬럼 '압연구분' 추가
+    STS봉강_특수합금_입고['압연구분'] = np.select(
+        [cond_1danjo, cond_2danjo, cond_daehyeong, cond_sohyeong],
+        ['1단조',      '2단조',      '대형압연',      '소형압연'],
+        default='예외'
+    )
+    
+    # 9) 파생변수 생성 : 각 컬럼 데이터의 공백을 제거하고, 문자열로 변환하여 KEY 생성
     STS봉강_특수합금_입고['KEY'] = (
         STS봉강_특수합금_입고['열처리_구분'].str.strip() + "_" +
         STS봉강_특수합금_입고['형상_구분'].str.strip() + "_" + 
         STS봉강_특수합금_입고['특수제강_구분'].str.strip() + "_" + 
         STS봉강_특수합금_입고['제품구분'].str.strip() + "_" + 
-        STS봉강_특수합금_입고['기간구분'].str.strip()
+        STS봉강_특수합금_입고['기간구분'].str.strip() + "_" +
+        STS봉강_특수합금_입고['열처리'].str.strip() + "_" +
+        STS봉강_특수합금_입고['표면'].str.strip() + "_" +
+        STS봉강_특수합금_입고['압연구분'].str.strip() 
         )
     
     # 7) 통계치 계산
@@ -1055,6 +1097,12 @@ def load_raw_sts():
     # 0) raw_data parquet file import
     STS봉강_특수합금 = pd.read_parquet('2.STS봉강_특수합금.parquet')
     
+    # 0-1) '주문구분'이 '강관원재'가 아닌 행만 추출
+    STS봉강_특수합금 = STS봉강_특수합금[STS봉강_특수합금['주문구분'] != '강관원재']
+    
+    # 0-2) '열처리' 컬럼의 결측값을 'NH'로 채움
+    STS봉강_특수합금['열처리'] = STS봉강_특수합금['열처리'].fillna('NH')
+    
     # 1) 그룹별(공정순위가 최대인 행)의 인덱스를 구한 뒤, 해당 행만 추출
     df_max = STS봉강_특수합금.loc[STS봉강_특수합금.groupby('LOT_NO')['공정순위'].idxmax(), ['LOT_NO','공정순위']]
     
@@ -1140,13 +1188,49 @@ def load_raw_sts():
     # 파생컬럼 값에 대해 함수 적용하여 Y 컬럼 생성
     STS봉강_특수합금_입고["기간구분"] = STS봉강_특수합금_입고["입고년월"].apply(determine_quarter)   
     
-    # 8) 파생변수 생성 : 각 컬럼 데이터의 공백을 제거하고, 문자열로 변환하여 KEY 생성
+    # 8) 파생변수 생성 (압연구분)
+    # 컬럼명 지정
+    ps_col = '제품소성공정명'
+    p_col  = '품종'
+    o_col  = '주문형상'
+
+    # 각 조건 정의
+    cond1 = (
+        STS봉강_특수합금_입고[ps_col].isin(['1단조 1800톤 프레스', 'RFM단조']) &
+        (STS봉강_특수합금_입고[p_col] == '일반단조')
+    )
+    cond2 = (
+        STS봉강_특수합금_입고[ps_col].isin(['1단조 1800톤 프레스', 'RFM단조']) &
+        (STS봉강_특수합금_입고[p_col] == '대형재') &
+        (STS봉강_특수합금_입고[o_col] == 'RB')
+    )
+    cond_1danjo   = cond1 | cond2
+
+    cond_2danjo   = (
+        (STS봉강_특수합금_입고[ps_col] == '2단조_9000톤_프레스') &
+        (STS봉강_특수합금_입고[p_col] == '일반단조')
+    )
+
+    cond_daehyeong = STS봉강_특수합금_입고[ps_col].isin(['분괴압연', '분괴_SBM압연'])
+    cond_sohyeong  = STS봉강_특수합금_입고[ps_col] == '소형압연'
+
+    # np.select 로 파생컬럼 '압연구분' 추가
+    STS봉강_특수합금_입고['압연구분'] = np.select(
+        [cond_1danjo, cond_2danjo, cond_daehyeong, cond_sohyeong],
+        ['1단조',      '2단조',      '대형압연',      '소형압연'],
+        default='예외'
+    )
+    
+    # 9) 파생변수 생성 : 각 컬럼 데이터의 공백을 제거하고, 문자열로 변환하여 KEY 생성
     STS봉강_특수합금_입고['KEY'] = (
         STS봉강_특수합금_입고['열처리_구분'].str.strip() + "_" +
         STS봉강_특수합금_입고['형상_구분'].str.strip() + "_" + 
         STS봉강_특수합금_입고['특수제강_구분'].str.strip() + "_" + 
         STS봉강_특수합금_입고['제품구분'].str.strip() + "_" + 
-        STS봉강_특수합금_입고['기간구분'].str.strip()
+        STS봉강_특수합금_입고['기간구분'].str.strip() + "_" +
+        STS봉강_특수합금_입고['열처리'].str.strip() + "_" +
+        STS봉강_특수합금_입고['표면'].str.strip() + "_" +
+        STS봉강_특수합금_입고['압연구분'].str.strip() 
         )
     
     # 7) 통계치 계산
@@ -1647,7 +1731,7 @@ st.set_page_config(page_title="입고 분석 앱", layout="wide")
 
 # 1) 앱 헤더 이미지
 # header.png 파일을 프로젝트 루트에 두고, 컬럼 전체 너비로 표시
-st.image("history_kv.png", use_container_width=True)
+st.image("history_kv.png", use_column_width=True)
 
 st.title("제조공기 분석 결과 테이블")
 st.subheader("2024년 ~ 2025년 1분기 내수/수출/강관원재 입고실적")
@@ -1671,7 +1755,7 @@ with st.spinner("데이터 로드 중..."):
         df = load_data_sts()
         raw_df = load_raw_sts()
         subtitle = '''
-        2) STS봉강 + 특수합금 (MARAGING강 제외)
+        2) STS봉강 + 특수합금 (MARAGING강, 강관원재 제외)
         - 강종대분류: S, V
         - 형상: RB, FB, SB, HB
         '''
