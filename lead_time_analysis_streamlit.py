@@ -4,7 +4,7 @@ import numpy as np
 from functools import reduce
 import seaborn as sns
 import matplotlib.pyplot as plt
-plt.rcParams['font.family'] = 'Malgun Gothic'
+# plt.rcParams['font.family'] = 'Malgun Gothic'
 import matplotlib as mpl
 mpl.rcParams['axes.unicode_minus'] = False
 import io, base64, os
